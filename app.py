@@ -14,7 +14,7 @@ app.permanent_session_lifetime = timedelta(minutes=30)
 EXTERNAL_API_URL = 'https://web.blueitx.xyz/api/check_card.php'
 # IMPORTANT: The user MUST set a valid PHPSESSID environment variable for the API to work.
 # The value below is a placeholder and will likely fail without a real session ID.
-PHPSESSID = "r9t02lj6nbr39gqe9ap21essue"
+#PHPSESSID = "r9t02lj6nbr39gqe9ap21essue"
 
 # --- Core Logic ---
 
@@ -39,7 +39,7 @@ def external_api_validation(card_data, gateway, site=None):
     """
     
     cookies = {
-        'PHPSESSID': PHPSESSID,
+        'PHPSESSID':'r9t02lj6nbr39gqe9ap21essue',
     }
 
     # Using the headers provided by the user to mimic the request
