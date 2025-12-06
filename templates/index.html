@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Validator - Educational</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>🔐 Card Validator</h1>
+                <p class="subtitle">Educational Content - Mock API Validation</p>
+            </div>
+        </header>
+
+        <!-- User Info Panel -->
+        <div class="user-panel">
+            <div class="user-info">
+                <div class="info-item">
+                    <label>Guest Name:</label>
+                    <span class="guest-name">{{ guest_name }}</span>
+                </div>
+                <div class="info-item">
+                    <label>Credits Remaining:</label>
+                    <span class="credits-badge">{{ credits }}/20</span>
+                </div>
+            </div>
+            <div class="user-actions">
+                <button class="btn btn-secondary" onclick="toggleNameChange()">✏️ Change Name</button>
+                <a href="{{ url_for('reset_session') }}" class="btn btn-danger">🔄 Reset Session</a>
+            </div>
+        </div>
+
+        <!-- Name Change Form (Hidden by default) -->
+        <div id="nameChangeForm" class="name-change-form" style="display: none;">
+            <form method="POST">
+                <div class="form-group">
+                    <label for="guest_name">New Guest Name:</label>
+                    <input type="text" id="guest_name" name="guest_name" placeholder="Enter your name" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Name</button>
+                <button type="button" class="btn btn-secondary" onclick="toggleNameChange()">Cancel</button>
+            </form>
+        </div>
+
+        <!-- Main Validation Form -->
+        <div class="validation-section">
+            <h2>Validate Card Data</h2>
+            <p class="info-text">Enter card data to test the mock validation gates. Each validation uses 1 credit.</p>
+            
+            <form method="POST" class="validation-form">
+                <div class="form-group">
+                    <label for="card_data">Card Data (Paste content here):</label>
+                    <textarea 
+                        id="card_data" 
+                        name="card_data" 
+                        placeholder="Paste your card data here (minimum 10 characters for demo)"
+                        rows="6"
+                        required></textarea>
+                </div>
+
+                {% if credits > 0 %}
+                    <button type="submit" class="btn btn-primary btn-large">
+                        ✓ Validate (Cost: 1 Credit)
+                    </button>
+                {% else %}
+                    <button type="submit" class="btn btn-disabled" disabled>
+                        ✗ No Credits Available
+                    </button>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        {% if last_result %}
+            <div class="results-section result-{{ last_result.status }}">
+                <h3>Validation Result</h3>
+                <div class="result-content">
+                    <div class="result-status">
+                        {% if last_result.status == 'success' %}
+                            <span class="status-badge success">✓ SUCCESS</span>
+                        {% elif last_result.status == 'fail' %}
+                            <span class="status-badge fail">✗ FAILED</span>
+                        {% else %}
+                            <span class="status-badge error">⚠ ERROR</span>
+                        {% endif %}
+                    </div>
+                    <div class="result-message">
+                        <p>{{ last_result.message }}</p>
+                        {% if last_result.gate %}
+                            <p class="gate-info"><strong>Gate:</strong> {{ last_result.gate }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="result-footer">
+                    <p class="credits-info">Credits remaining: <strong>{{ credits }}</strong>/20</p>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Info Section -->
+        <div class="info-section">
+            <h3>ℹ️ How It Works</h3>
+            <ul>
+                <li>You start with <strong>20 credits</strong> as a guest user.</li>
+                <li>Each validation attempt costs <strong>1 credit</strong>.</li>
+                <li>You can change your guest name anytime.</li>
+                <li>The validation uses mock API gates for educational purposes.</li>
+                <li>When credits run out, use the "Reset Session" button to start over.</li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>⚠️ <strong>Educational Content Only</strong> - This is a demonstration application for learning purposes.</p>
+            <p>Built with Flask | Hosted on Render</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
