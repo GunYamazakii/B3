@@ -12,9 +12,17 @@
         <header class="header">
             <div class="header-content">
                 <h1>🔐 Card Validator</h1>
-                <p class="subtitle">Educational Content - Mock API Validation</p>
+                <p class="subtitle">Educational Content - External API Integration</p>
             </div>
         </header>
+
+        <!-- API Status Warning -->
+        {% if not phpsessid_set %}
+        <div class="warning-banner">
+            <strong>⚠️ Warning:</strong> PHPSESSID environment variable is not set. The API calls may fail. 
+            Please set the <code>PHPSESSID</code> environment variable on Render or locally in your <code>.env</code> file.
+        </div>
+        {% endif %}
 
         <!-- User Info Panel -->
         <div class="user-panel">
@@ -49,17 +57,40 @@
         <!-- Main Validation Form -->
         <div class="validation-section">
             <h2>Validate Card Data</h2>
-            <p class="info-text">Enter card data to test the mock validation gates. Each validation uses 1 credit.</p>
+            <p class="info-text">Select a gateway and enter card data. Each validation uses 1 credit.</p>
             
             <form method="POST" class="validation-form">
+                <!-- Gateway Selection -->
                 <div class="form-group">
-                    <label for="card_data">Card Data (Paste content here):</label>
+                    <label for="gateway">Select Gateway:</label>
+                    <select id="gateway" name="gateway" required onchange="toggleSiteInput()">
+                        <option value="">-- Choose a Gateway --</option>
+                        <option value="sk_based">SK Based</option>
+                        <option value="stripe_auth">Stripe Auth</option>
+                        <option value="auto_shopify">AutoShopify</option>
+                    </select>
+                </div>
+
+                <!-- Card Data Input -->
+                <div class="form-group">
+                    <label for="card_data">Card Data (Format: card|mm|yy|cvv):</label>
                     <textarea 
                         id="card_data" 
                         name="card_data" 
-                        placeholder="Paste your card data here (minimum 10 characters for demo)"
-                        rows="6"
+                        placeholder="Example: 5273350015300245|01|28|772"
+                        rows="4"
                         required></textarea>
+                </div>
+
+                <!-- Site Input (AutoShopify Only) -->
+                <div class="form-group" id="siteInputGroup" style="display: none;">
+                    <label for="site">Shopify Site URL (AutoShopify only):</label>
+                    <input 
+                        type="url" 
+                        id="site" 
+                        name="site" 
+                        placeholder="https://example.myshopify.com/products/..."
+                    >
                 </div>
 
                 {% if credits > 0 %}
@@ -90,11 +121,22 @@
                     </div>
                     <div class="result-message">
                         <p>{{ last_result.message }}</p>
-                        {% if last_result.gate %}
-                            <p class="gate-info"><strong>Gate:</strong> {{ last_result.gate }}</p>
+                        {% if last_result.gateway %}
+                            <p class="gate-info"><strong>Gateway:</strong> {{ last_result.gateway }}</p>
                         {% endif %}
                     </div>
                 </div>
+
+                <!-- Raw API Response -->
+                {% if last_result.raw_response %}
+                <div class="raw-response">
+                    <details>
+                        <summary>📋 Raw API Response</summary>
+                        <pre>{{ last_result.raw_response }}</pre>
+                    </details>
+                </div>
+                {% endif %}
+
                 <div class="result-footer">
                     <p class="credits-info">Credits remaining: <strong>{{ credits }}</strong>/20</p>
                 </div>
@@ -108,15 +150,36 @@
                 <li>You start with <strong>20 credits</strong> as a guest user.</li>
                 <li>Each validation attempt costs <strong>1 credit</strong>.</li>
                 <li>You can change your guest name anytime.</li>
-                <li>The validation uses mock API gates for educational purposes.</li>
+                <li>Select a gateway: <strong>SK Based</strong>, <strong>Stripe Auth</strong>, or <strong>AutoShopify</strong>.</li>
+                <li>Enter card data in the format: <code>card_number|mm|yy|cvv</code></li>
+                <li>For AutoShopify, optionally provide a Shopify site URL.</li>
                 <li>When credits run out, use the "Reset Session" button to start over.</li>
             </ul>
+        </div>
+
+        <!-- Gateway Details -->
+        <div class="gateway-details">
+            <h3>🔗 Gateway Details</h3>
+            <div class="gateway-grid">
+                <div class="gateway-card">
+                    <h4>SK Based</h4>
+                    <p>Validates cards using Stripe's SK (Secret Key) based authentication.</p>
+                </div>
+                <div class="gateway-card">
+                    <h4>Stripe Auth</h4>
+                    <p>Validates cards using Stripe's standard authentication method.</p>
+                </div>
+                <div class="gateway-card">
+                    <h4>AutoShopify</h4>
+                    <p>Validates cards against Shopify stores. Requires a valid Shopify site URL.</p>
+                </div>
+            </div>
         </div>
 
         <!-- Footer -->
         <footer class="footer">
             <p>⚠️ <strong>Educational Content Only</strong> - This is a demonstration application for learning purposes.</p>
-            <p>Built with Flask | Hosted on Render</p>
+            <p>Built with Flask | Hosted on Render | External API: web.blueitx.xyz</p>
         </footer>
     </div>
 
